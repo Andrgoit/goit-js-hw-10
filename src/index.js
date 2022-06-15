@@ -8,7 +8,7 @@ const DEBOUNCE_DELAY = 300;
 const refs = {
   input: document.querySelector('#search-box'),
   countryList: document.querySelector('.country-list'),
-  countryInfo: document.querySelector('country-info'),
+  countryInfo: document.querySelector('.country-info'),
 };
 
 refs.input.addEventListener('input', debounce(inputHandler, DEBOUNCE_DELAY));
@@ -48,6 +48,7 @@ function markupCountry(countries) {
 
   const markup = countries
     .map(({ flags, capital, languages, name, population }) => {
+      const lang = Object.values(languages);
       return `<div class="country-card">
         <div class="country-card-header">
           <img
@@ -56,7 +57,7 @@ function markupCountry(countries) {
             alt="flag ${name.common}"
             width="35px"
           />
-          <span class="country-card-title">${name.common}</span>
+          <span class="country-card-title">${name.common}</span></div>
           <ul class="country-card-list">
             <li class="country-card-item">
               <span class="country-card-property">Capital: </span
@@ -68,10 +69,9 @@ function markupCountry(countries) {
             </li>
             <li class="country-card-item">
               <span class="country-card-property">Languages: </span
-              ><span>${languages}</span>
+              ><span>${lang}</span>
             </li>
-          </ul>
-        </div>
+          </ul>        
       </div>`;
     })
     .join('');
@@ -81,7 +81,7 @@ function markupCountry(countries) {
 function markupListCountries(countries) {
   console.log('countriesList', countries);
   // clearList();
-  // clearInfo();
+  clearInfo();
   const markup = countries
     .map(({ flags, name }) => {
       return `<li class="country-item">
