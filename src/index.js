@@ -1,7 +1,9 @@
 import './css/styles.css';
+import { fetchCountries } from './js/fetchCountries';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 const debounce = require('lodash.debounce');
 
-const DEBOUNCE_DELAY = 1000;
+const DEBOUNCE_DELAY = 300;
 
 const refs = {
   input: document.querySelector('#search-box'),
@@ -13,58 +15,97 @@ refs.input.addEventListener('input', debounce(inputHandler, DEBOUNCE_DELAY));
 
 function inputHandler(e) {
   e.preventDefault();
+  clearList();
 
-  const form = e.target.value;
+  const form = e.target.value.trim();
   console.log(form);
 
-  fetchCountries(form).then(countries => {
-    // console.log(countries);
-    if (countries.length > 10) {
-      console.log(
-        '1 Too many matches found. Please enter a more specific name.'
-      );
-      return;
-    } else if (countries.length > 1 && countries.length < 10) {
-      markupListCountries(countries);
-    } else if (countries.length === 1) {
-      markupCountry(countries);
-    } else {
-      console.log('Непонятная длинна массива');
-    }
-  });
-}
-
-function markupCountry(countries) {
-  // console.log('countries', countries);
-  // const markup = countries.map(counrty => {
-  //   return ``;
-  // });
-}
-function markupListCountries(countries) {
-  // console.log('countriesList', countries);
-  // const markup = countries
-  //   .map(country => {
-  //     return `<li>
-  //   <img class = "flag" src = ${svg} alt ="flag">
-  //   <p>${common}</p>
-  //   </li>`;
-  //   })
-  //   .join('');
-  // refs.countryList.innerHTML = markup;
-}
-
-function fetchCountries(name) {
-  return fetch(
-    `https://restcountries.com/v3.1/name/${name}?fields=name,capital,population,flags,languages`
-  )
-    .then(response => {
-      return response.json;
+  fetchCountries(form)
+    .then(countries => {
+      console.log(countries);
+      if (form !== '') {
+        if (countries.length >= 2 && countries.length <= 10) {
+          // clearList();
+          markupListCountries(countries);
+        } else if (countries.length === 1) {
+          markupCountry(countries);
+          // clearList();
+          // clearInfo();
+        } else {
+          alarmMessage();
+        }
+      } else {
+        Notify.warning('Oops!');
+      }
     })
     .catch(error => {
-      console.log(error);
+      Notify.failure('Oops, there is no country with that name');
     });
 }
 
-//   ({ flags: { svg }, name: { official }, capital, languages }) => {
-//     console.log();
-//   }
+function markupCountry(countries) {
+  console.log('countries', countries);
+
+  const markup = countries
+    .map(({ flags, capital, languages, name, population }) => {
+      return `<div class="country-card">
+        <div class="country-card-header">
+          <img
+            class="country-card-image"
+            src="${flags.svg}"
+            alt="flag ${name.common}"
+            width="35px"
+          />
+          <span class="country-card-title">${name.common}</span>
+          <ul class="country-card-list">
+            <li class="country-card-item">
+              <span class="country-card-property">Capital: </span
+              ><span>${capital[0]}</span>
+            </li>
+            <li class="country-card-item">
+              <span class="country-card-property">Population: </span
+              ><span>${population}</span>
+            </li>
+            <li class="country-card-item">
+              <span class="country-card-property">Languages: </span
+              ><span>${languages}</span>
+            </li>
+          </ul>
+        </div>
+      </div>`;
+    })
+    .join('');
+  refs.countryInfo.innerHTML = markup;
+}
+
+function markupListCountries(countries) {
+  console.log('countriesList', countries);
+  // clearList();
+  // clearInfo();
+  const markup = countries
+    .map(({ flags, name }) => {
+      return `<li class="country-item">
+        <img
+          class="country-item-img"
+          src="${flags.svg}"
+          alt="flag"
+          width="35px"
+        />
+        <span class="country-item-text">${name.common}</span>
+      </li>`;
+    })
+    .join('');
+  refs.countryList.innerHTML = markup;
+}
+
+function alarmMessage() {
+  Notify.info('Too many matches found. Please enter a more specific name.');
+}
+
+function clearList() {
+  refs.countryList.innerHTML = '';
+}
+
+function clearInfo() {
+  refs.countryInfo.innerHTML = '';
+}
