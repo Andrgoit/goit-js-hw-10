@@ -61,15 +61,15 @@ function markupCountry(countries) {
           <ul class="country-card-list">
             <li class="country-card-item">
               <span class="country-card-property">Capital: </span
-              ><span>${capital[0]}</span>
+              ><span class="country-card-value">${capital[0]}</span>
             </li>
             <li class="country-card-item">
               <span class="country-card-property">Population: </span
-              ><span>${population}</span>
+              ><span class="country-card-value">${population}</span>
             </li>
             <li class="country-card-item">
               <span class="country-card-property">Languages: </span
-              ><span>${lang}</span>
+              ><span class="country-card-value">${lang}</span>
             </li>
           </ul>        
       </div>`;
